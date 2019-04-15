@@ -9,7 +9,7 @@ fileName = 'file'
 hashName = 'hash'
 
 #groups and ports
-MCAST_PORT = 5003
+SUPNODE_PORT = 5003
 
 # texts to communicate
 CONNECT_TO_SUPER = 'LET ME JOIN'
@@ -67,7 +67,7 @@ def joinSuperNode(sock):
     global superIp
 	
     print('wtf')
-    server_addr = (superIp,MCAST_PORT)
+    server_addr = (superIp,SUPNODE_PORT)
     signal = bytes(CONNECT_TO_SUPER, 'utf-8')
     print('wtf ' + str(signal))
     print('wtf ' + str(server_addr))
@@ -78,7 +78,7 @@ def joinSuperNode(sock):
 def stillAlive(sock):	
     #try except pra joinar outro??
     while True:
-        server_addr = (superIp,MCAST_PORT)
+        server_addr = (superIp,SUPNODE_PORT)
         signal = bytes(STILL_ALIVE, 'utf-8')
         print(signal)
         print(server_addr)

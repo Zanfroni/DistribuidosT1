@@ -10,8 +10,8 @@ peers = []
 
 # Groups and ports
 MCAST_GRP = '224.3.29.71'
-MCAST_PORT = 5003
-#SUPNODE_PORT = 5003
+MCAST_PORT = 6969
+SUPNODE_PORT = 5003
 
 # texts to communicate
 ALLOWED_JOIN = 'ALLOWED'
@@ -28,14 +28,16 @@ def supernode(superIp):
     
     thread.start_new_thread(peerJoin, ())
     while True:
-		# Faz um receive dele. Essa porra pode tanto ser Uni como Multi
+        # Faz um receive dele. Essa porra pode tanto ser Uni como Multi
+        print('running')
+        sleep(2)
 		
 		
 
 def peerJoin():
 	# provavelmente while true pra se repetir com Peers
     UNI_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    UNI_sock.bind(('',MCAST_PORT))
+    UNI_sock.bind(('',SUPNODE_PORT))
     print('quer ver')
     rawdata, address = UNI_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
