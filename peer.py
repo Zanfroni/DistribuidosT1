@@ -40,7 +40,7 @@ def peer(sIp,fileN,pIp):
         thread.start_new_thread(setHash,())
         sleep(1)
         ''' CRIAR THREAD QUE MANDA AS INFOS DA PORRA DO PEER PRO SUPERNODE '''
-        thread.start_new_thread(sendInfoSuper, ())
+        thread.start_new_thread(sendInfoSuper, (UNI_sock,address,))
         
         thread.start_new_thread(stillAlive, (sock,))
         
@@ -54,11 +54,14 @@ def peer(sIp,fileN,pIp):
 def options():
     return
 
-def sendInfoSuper():
+def sendInfoSuper(UNI_sock, address):
 	
 	global ip, fileName, hashName
 	
 	# aqui deve se dar send via socket para o super node
+	data = '(' + fileName + ',' + hashName + ',' + ip')'
+	signal = bytes(data,address)
+	UNI_sock.sendto(signal,address)
 	
 
 def setHash():
