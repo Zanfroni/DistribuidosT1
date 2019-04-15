@@ -33,8 +33,14 @@ def supernode(superIp):
     thread.start_new_thread(listenUNI, ())
     thread.start_new_thread(listenJoin, ())
     
+    # DEBUG
+    while True:
+        print('running')
+        sleep(2)
+    
 def listenMC(MCAST_sock):
 	
+    return
     #MCAST_sock = recvfrom(1024)
 
 def listenUNI():
@@ -49,7 +55,7 @@ def listenJoin():
 	
     JOIN_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     JOIN_sock.bind(('',JOIN_PORT))
-    rawdata,address = UNI_sock.recvfrom(1024)
+    rawdata,address = JOIN_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     if data == 'LET ME JOIN':
         signal = bytes(ALLOWED_JOIN,'utf-8')
@@ -59,4 +65,5 @@ def listenJoin():
         rawinfo,address = JOIN_sock.recvfrom(1024)
         info = str(rawinfo).strip('b')[1:-1]
         peers.append(info)
+        print(peers)
     
