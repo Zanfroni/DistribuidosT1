@@ -28,8 +28,7 @@ def peer(sIp,fileN,pIp):
     print('fucking shit')
     thread.start_new_thread(joinSuperNode, (sock,))
     # Agora que ele mandou pro SUPERNODE, espera a resposta dele
-    rawdata, address = sock.recvfrom(1024)
-    data = str(rawdata.strip('b')[1:-1])
+    data, address = (sock.recvfrom(1024)).strip('b')[1:-1]
     if data == 'ALLOWED':
         print('JOINED SUPERNODE: ' + data)
         # AQUI ELE CONFIRMA SE ELE JOINOU OU NAO. Se confirmou, cria Thread do IM ALIVE
