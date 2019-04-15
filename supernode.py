@@ -10,8 +10,8 @@ peers = []
 
 # Groups and ports
 MCAST_GRP = '224.3.29.71'
-MCAST_PORT = 6969
-SUPNODE_PORT = 5003
+MCAST_PORT = 5003
+#SUPNODE_PORT = 5003
 
 # texts to communicate
 ALLOWED_JOIN = 'ALLOWED'
@@ -26,20 +26,16 @@ def supernode(superIp):
     mreq = struct.pack('4sL', group, socket.INADDR_ANY)
     MCAST_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
     
-    #OK ----> CRIA SUPER NODO E ENTRA NO GRUPO DETERMINADO
-    
-    # now that ele esta baindado no Multicast lixo do caralho, hora de ver as opcoes
     thread.start_new_thread(peerJoin, ())
     while True:
-        print('2423')
-        sleep(2)
-    
-    # now that he joined, send the fucking listening options
+		# Faz um receive dele. Essa porra pode tanto ser Uni como Multi
+		
+		
 
 def peerJoin():
 	# provavelmente while true pra se repetir com Peers
     UNI_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    UNI_sock.bind(('',SUPNODE_PORT))
+    UNI_sock.bind(('',MCAST_PORT))
     print('quer ver')
     rawdata, address = UNI_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
