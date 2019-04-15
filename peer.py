@@ -31,7 +31,7 @@ def peer(sIp,fileN,pIp):
     rawdata, address = sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     if data == 'ALLOWED':
-        print('JOINED SUPERNODE: ' + data)
+        print('JOINED SUPERNODE: ' + str(address))
         # AQUI ELE CONFIRMA SE ELE JOINOU OU NAO. Se confirmou, cria Thread do IM ALIVE
         # Nota-se que se o supernodo arrancar ele fora da lista, a interface continua intacta
         # mas qlqr tentativa de conexao vai dar em merda
@@ -59,9 +59,11 @@ def sendInfoSuper():
 	global ip, fileName, hashName
 	
 	# aqui deve se dar send via socket para o super node
+	
 
 def setHash():
 	hashName = hashlib.md5(fileName.encode('utf-8')).hexdigest()
+	print(hashName)
 
 def joinSuperNode(sock):
     global superIp

@@ -44,7 +44,12 @@ def peerJoin():
     if data == 'LET ME JOIN':
         signal = bytes(ALLOWED_JOIN,'utf-8')
         UNI_sock.sendto(signal,address)
-        # aqui eu deveria adicionar as merdas do peer
+        
+        rawdata, address = UNI_sock.recvfrom(1024)
+        data = str(rawdata).strip('b')[1:-1]
+        print('DUTRÃ ' + data)
+        #peers.append(data)
+        
         print('passei weee')
         thread.start_new_thread(stillAlive, (UNI_sock,))
         
