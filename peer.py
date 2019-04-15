@@ -17,15 +17,19 @@ STILL_ALIVE = 'STILL ALIVE'
 
 def peer(sIp,fileN,pIp):
     
+    global superIp
+    
     ip = pIp
     superIp = sIp
     fileName = fileN
     sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     # aqui o user digita o port, pq tem que estar disponível
     #SUPNODE_PORT = int(input())
+    print('fucking shit')
     thread.start_new_thread(joinSuperNode, (sock,))
     # Agora que ele mandou pro SUPERNODE, espera a resposta dele
-    data, address = sock.recvfrom(1024).strip('b')[1:-1]
+    rawdata, address = sock.recvfrom(1024)
+    data = str(rawdata.strip('b')[1:-1])
     if data == 'ALLOWED':
         print('JOINED SUPERNODE: ' + data)
         # AQUI ELE CONFIRMA SE ELE JOINOU OU NAO. Se confirmou, cria Thread do IM ALIVE
@@ -52,14 +56,22 @@ def setHash():
 	hashName = hashlib.md5(fileName.encode('utf-8')).hexdigest()
 
 def joinSuperNode(sock):
+    global superIp
+	
+    print('wtf')
     server_addr = (superIp,SUPNODE_PORT)
     signal = bytes(CONNECT_TO_SUPER, 'utf-8')
+    print('wtf ' + str(signal))
+    print('wtf ' + str(server_addr))
     sock.sendto(signal,server_addr)
+    print('wtf')
 
-def stillAlive(sock):
+def stillAlive(sock):	
     #try except pra joinar outro??
     while True:
         server_addr = (superIp,SUPNODE_PORT)
         signal = bytes(STILL_ALIVE, 'utf-8')
+        print(signal)
+        print(server_addr)
         sock.sendto(signal,server_addr)
         sleep(5)

@@ -41,7 +41,8 @@ def peerJoin():
     UNI_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     UNI_sock.bind(('',SUPNODE_PORT))
     print('quer ver')
-    data, address = UNI_sock.recvfrom(1024).strip('b')[1:-1]
+    rawdata, address = UNI_sock.recvfrom(1024)
+    data = str(rawdata.strip('b')[1:-1])
     if data == 'LET ME JOIN':
         signal = bytes(ALLOWED_JOIN,'utf-8')
         UNI_sock.sendto(signal,address)
@@ -53,7 +54,8 @@ def peerJoin():
 def stillAlive():
     count = 2
     while count > 0:
-        data, address = UNI_sock.recvfrom(1024).strip('b')[1:-1]
+        rawdata, address = UNI_sock.recvfrom(1024)
+        data = str(rawdata.strip('b')[1:-1])
         if data == 'STILL ALIVE':
             sleep(5)
             # Need to perfect this crap
