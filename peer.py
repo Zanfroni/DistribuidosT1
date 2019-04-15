@@ -1,4 +1,4 @@
-import socket, hashlib
+import socket, hashlib, sys
 import _thread as thread
 
 from time import sleep
@@ -28,7 +28,7 @@ def peer(sIp,fileN,pIp):
     print('fucking shit')
     thread.start_new_thread(joinSuperNode, (sock,))
     # Agora que ele mandou pro SUPERNODE, espera a resposta dele
-    rawdata, address = sock.recvfrom(1024).strip('b')[1:-1]
+    rawdata, address = sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     if data == 'ALLOWED':
         print('JOINED SUPERNODE: ' + data)

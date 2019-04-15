@@ -51,10 +51,10 @@ def peerJoin():
         thread.start_new_thread(stillAlive, (UNI_sock,))
         
     
-def stillAlive():
+def stillAlive(UNI_sock):
     count = 2
     while count > 0:
-        rawdata, address = UNI_sock.recvfrom(1024).strip('b')[1:-1]
+        rawdata, address = UNI_sock.recvfrom(1024)
         data = str(rawdata).strip('b')[1:-1]
         if data == 'STILL ALIVE':
             sleep(5)
