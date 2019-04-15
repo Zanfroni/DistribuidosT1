@@ -29,15 +29,18 @@ def peer(sIp,fileN,pIp):
     JOIN_sock.sendto(signal,super_address)
     
     # Agora tenta escutar a resposta dele pra passar os dados
-    rawdata, address = sock.recvfrom(1024)
+    rawdata, address = JOIN_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     if data == 'ALLOWED':
         setHash()
         
-        info = '(' + fileName + ',' + hashName + ',' + ip + ')'
+        info = fileName + ',' + hashName + ',' + ip
         signal = bytes(info,'utf-8')
         JOIN_sock.sendto(signal,address)
         ###
 
 def setHash():
+	
+    global hashName
+	
     hashName = hashlib.md5(fileName.encode('utf-8')).hexdigest()
