@@ -11,20 +11,14 @@ def main():
         device = input()
         clear()
         if device == 'supernode':
-            print('\nDigite corretamente o IP do seu computador:')
-            superIp = input()
             clear()
-            supernode(superIp)
+            supernode()
             break
         elif device == 'peer':
             print('\nDigite corretamente o IP do Supernodo a se contectar:')
             superIp = input()
-            print('\nDigite corretamente um arquivo que este Peer possui:')
-            fileName = input()
-            print('\nDigite corretamente o IP do seu computador:')
-            peerIp = input()
             clear()
-            peer(superIp,fileName,peerIp)
+            peer(superIp)
             break
         else:
             print('Entrada invalida. Tente novamente em dois segundos')
