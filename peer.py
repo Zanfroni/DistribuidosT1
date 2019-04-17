@@ -1,6 +1,6 @@
+# BIBLIOTECAS NATIVAS DO PYTHON
 import socket, hashlib, sys, os
 import _thread as thread
-
 from time import sleep
 
 # Magicamente pega o IP do PC atual
@@ -26,35 +26,33 @@ STILL_ALIVE = 'STILL ALIVE'
 I_WANT = 'I WANT:'
 TRADE_ME = 'TRADE ME:'
 
+'''
+INICIO -> PARAMETRO DE ENTRADA SERA O IP DO SUPERNODO A SE CONECTAR
+'''
 def peer(sIp):
 	
     global superIp
 	
     # Define o Supernodo
-    # HARDCODEI AQUI HAAAARD
     superIp = sIp
 	
     # Processou os files
     processFiles()
     
-    ''' AQUI ELE OBRIGATORIAMENTE TEM QUE DAR JOIN ANTES DE PODER FAZER
-    QUALQUER OUTRA COISA '''
+    # AQUI ELE OBRIGATORIAMENTE TEM QUE DAR JOIN ANTES DE PODER FAZER
+    # QUALQUER OUTRA COISA
 	
     # Passo 1: Tenta dar join no SuperNodo escolhido
     JOIN_sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     super_address = (superIp,JOIN_PORT)
     signal = bytes(LET_ME_JOIN,'utf-8')
-    ''' SEND '''
-    print('THREAD LISTENJOIN ESTA MANDANDO!')
     JOIN_sock.sendto(signal,super_address)
-    print('THREAD LISTENJOIN ESTA OUVINDO!')
-    ''' RECEIVE '''
     # Agora tenta escutar a resposta dele pra passar os dados
     rawdata, address = JOIN_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     if data == 'ALLOWED':
-        ''' SEND '''
-        # ENVIA OS FILES
+
+        # ENVIA OS FILES PARA O SUPERNODO QUE SE CONECTOU
         for f in files:
             signal = bytes(f[0],'utf-8')
             JOIN_sock.sendto(signal,address)
@@ -65,46 +63,60 @@ def peer(sIp):
         signal = bytes('DONE','utf-8')
         JOIN_sock.sendto(signal,address)
         
-        
-    ''' PEER ENTROU E ESTABELECEU CONEXAO COM O SUPERNODO.
-    HORA AGORA DE SETTAR AS THREADS DELE, COM EXCECAO DO OVERLAY
-    POR ENQUANTO '''
+    # COM A CONEXAO ESTABELECIDA, AS THREADS SAO INICIALIZADAS
     
     thread.start_new_thread(overlay,(JOIN_sock,))
     thread.start_new_thread(userTrade,())
     thread.start_new_thread(listenMessage,())
      
-    # DEBUGGING CRAP
+    # A CADA 10 SEGUNDOS, IMPRIME UMA NOTIFICACAO QUE O SISTEMA
+    # AINDA ESTA FUNCIONANDO
     while True:
         print('Peer Running')
-        sleep(3)
+        sleep(10)
     
     
-''' THREAD '''
+'''
+THREAD
+
+FUNCAO QUE MANDA MENSAGEM QUE AINDA ESTA VIVO PARA A CAMADA
+DE OVERY A CADA 5 SEGUNDOS
+UM SEND CONSTANTE BASICAMENTE
+'''
 def overlay(JOIN_sock):
     while True:
         signal = bytes(STILL_ALIVE,'utf-8')
         address = (superIp,JOIN_PORT)
-        ''' SEND CONSTANTE '''
         JOIN_sock.sendto(signal,address)
         sleep(5)
 
     
-''' THREAD '''
+''' 
+THREAD
+
+ESTA FUNCAO IMPLEMENTA A INTERFACE QUE O USUARIO DIGITA
+UM INPUT, QUE SERA UMA STRING DO ARQUIVO (OU SUBSTRING DELE
+OU DO HASH) E TODO O PROCESSO DE BUSCA SERA INICIALIZADO
+ESTA FUNCAO:
+- MANDA PARA O SUPERNODO O QUE ELA ESTA PROCURANDO
+- RECEBE LISTA E USUARIO DEVE ESCOLHER SE O RECURSO
+QUE O MESMO ESTA PROCURANDO ESTA PRESENTE NA LISTA (ELE PODE
+ACABAR RECEBENDO NADA TAMBEM, QUE ENCERRA O PROGRAMA)
+-- SE NAO ESTIVER PRESENTE, SE ENCERRA O PROGRAMA
+-- SE ESTIVER, SE COMUNICA COM O PEER QUE POSSUI E REALIZA
+A TRANSFERENCIA
+
+'''
 def userTrade():
     os.system('clear')
     print('AGORA DIGITE OU HASH QUE ESTA PROCURANDO')
     userFile = input()
-    # I WANT:dutra ou I WANT:tr
     UNI_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     address = (superIp,UCAST_PORT)
     message = I_WANT+userFile
     signal = bytes(message,'utf-8')
-    ''' SEND '''
-    print('MANDEI O DUTRÃ PARA ' + superIp)
     UNI_sock.sendto(signal,address)
     
-    ''' RECEIVE '''
     rawdata,address = UNI_sock.recvfrom(1024)
     data = str(rawdata).strip('b')[1:-1]
     message_parts = data.split(':')
@@ -113,11 +125,9 @@ def userTrade():
         print('TENTE NOVAMENTE!!')
         sleep(2)
         os.system('clear')
-    if message_parts[0] == 'FOUND':		
-        # CAPIROTUDO AXXXOU, HORA DA TROCA!! (easter egg dos nossos debugs)
+    if message_parts[0] == 'FOUND':
         potential = []
         info = ''
-        ''' RECEIVE MAROTUDOS '''
         while info != 'DONE':
             listFiles = []
             rawinfo,address = UNI_sock.recvfrom(1024)
@@ -131,9 +141,6 @@ def userTrade():
                 info = str(rawinfo).strip('b')[1:-1]
                 listFiles.append(info)
                 potential.append(listFiles)
-        
-        print('TRANSFERENCIA DUTROSA COMPLETADAADADADAD ' + str(potential))
-
 		
         index = 0
         for f in potential:
@@ -145,7 +152,6 @@ def userTrade():
                 address = (f[2],UCAST_PORT)
                 message = TRADE_ME+f[0]
                 signal = bytes(message,'utf-8')
-                ''' SEND '''
                 UNI_sock.sendto(signal,address)
                 rawinfo,address = UNI_sock.recvfrom(1024)
                 info = str(rawinfo).strip('b')[1:-1]
@@ -159,37 +165,36 @@ def userTrade():
     os.system('clear')
     repeatProcess()
     
+# Apenas repete o processo, para que nao tenha que se criar outra
+# Thread novamente
 def repeatProcess():
     userTrade()
     
 
-''' THREAD '''
-# AQUI ELE VAI ESCUTAR TANTO MENSAGENS DE SUPERNODOS EXIGINDO
-# QUE ELE AVALIE SE TEM ALGUM ARQUIVO OU MENSAGENS DE
-# PEERS REQUISITANDO TROCA
+
+'''
+THREAD
+
+ESTA FUNCAO ESCUTA MENSAGENS:
+
+- FETCH ME --> SUPERNODO PEDE PARA ELE PROCURAR UM RECURSO COM A
+STRING DE ENTRADA PROPOSTA. ELE RETORNA UMA LISTA COMO TODOS QUE
+POSSUEM (OU NADA)
+- TRADE ME --> PEER MANDA MENSAGEM PARA ESTE REQUISITANDO TRANSFERENCIA
+ESTE PEER MANDA O ARQUIVO QUE O OUTRO PEDE PARA O OUTRO
+
+'''
+
 def listenMessage():
     UNI_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     UNI_sock.bind(('',UCAST_PORT))
-    # TUDO ISSO ABAIXO DENTRO DE UM WHILE TRUE
-    # AQUI A MENSAGEM TERA O DIFERENCIADOR, SEPARADO POR UM :
-    # QUE SIMBOLIZA O ARQUIVO QUE ELE PEDIU OU O SEARCH DADO
-    # LOGO PRECISAMOS DE UM STRIP PARA :
+    
     while True:
-        ''' RECEIVE '''
         rawdata,address = UNI_sock.recvfrom(1024)
         data = str(rawdata).strip('b')[1:-1]
         message_parts = data.split(':')
         if message_parts[0] == 'FETCH ME':
-            print('DUTRA DUTRA RECEBEU DO SUPER DUTRA')
-            print(message_parts)
-            
-            # AGORA PEGO MEUS ARQUIVOS.
-            # TEREI MEU FILES
-            # PEGO CADA UM DO FILES E ENVIO
-            # NO PROCESSO, MANDA[0] [1] E DONE
-            
-            ''' SEND '''
-            
+
             for f in files:
                 if (message_parts[1] in f[0]) or (message_parts[1] in f[1]):
                     signal = bytes(f[0],'utf-8')
@@ -200,36 +205,7 @@ def listenMessage():
                     sleep(1)
             signal = bytes('DONE','utf-8')
             UNI_sock.sendto(signal,address)
-            
 
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
         if message_parts[0] == 'TRADE ME':
             ''' PEGA O FILE, LE ELE E ENVIA TODO O CONTEXTO '''
             with open('cases/'+message_parts[1], 'r') as fileToTransfer:
@@ -237,18 +213,14 @@ def listenMessage():
                 signal = bytes(data,'utf-8')
                 UNI_sock.sendto(signal,address)    
     
-    
-    
-    
-    
-    
-    
-
-    
-
-        
-        
-''' DONE!!! '''
+     
+'''
+*** PROCESSA OS ARQUIVOS:
+- ENTRA NO DIRETORIO cases/
+- PEGA CADA NOME DE ARQUIVO E CRIA O HASH
+- INSERE NA LISTA files --> (file,hash)
+- ELE NAO GUARDA EM files O SEU IP
+'''
 def processFiles():
 	
     global files
