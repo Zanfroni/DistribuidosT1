@@ -1,5 +1,6 @@
 import socket, struct
 import _thread as thread
+import time
 
 from time import sleep
 
@@ -12,7 +13,10 @@ s.close()
 ''' AQUI PRA CIMA ESTA TUDO OK '''
 
 # Lista de Peers conectados a este Supernodo com seus files
+# elapsed e count vao ser parametros para a camada de overlay
 peers = []
+elapsed = 0
+count = 2
 
 # PORTS and GROUPS
 MCAST_GRP = '224.3.29.71'
@@ -281,7 +285,12 @@ def listenUNI():
         
         '''        
         # DEPOIS QUE TODA ESSA JOCA FUDIDA TER SIDO FEITA
-        # HORA DE MANDAR PRO NODO SIM OU NAO
+        # HORA DE MANDAR PRO NODO SIM OU NAOdef stopwatch(seconds):
+    start = time.time()
+    # time.time() returns the number of seconds since the unix epoch.
+    # To find the time since the start of the function, we get the start
+    # value, then subtract the start from all following values.
+    time.clock() 
         
             if len(candidates) > 0:
                 signal = bytes(NOTHING,'utf-8')
@@ -343,4 +352,38 @@ def listenJoin():
                 
             
             print(peers)
-            # FALTA IMPLEMENTAR O STILL ALIVE
+            if len(peers) == 1:
+                thread.start_new_thread(overlay,())
+            
+def overlay():
+	
+    global elapsed, count
+	
+    OVERLAY_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    OVERLAY_sock.bind('',JOIN_PORT)
+    count = 2
+    clock = True
+    clock = thread.start_new_thread(counting,())
+    while clock:
+        rawdata,address = OVERLAY_sock.recvfrom(1024)
+        data = str(rawdata).strip('b')[1:-1]
+        if data == 'STILL ALIVE':
+            count = 2
+    peers.clear()
+    return
+    
+    
+        
+def counting():
+	
+    global elapsed, count
+	
+    while count > 0:
+	
+        start = time.time()
+        time.clock()
+        while(elapsed <= 5):
+            elapsed = time.time() - start
+            sleep(0.5)
+        count -= 1
+    return false

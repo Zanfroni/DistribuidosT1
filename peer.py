@@ -70,7 +70,7 @@ def peer(sIp):
     HORA AGORA DE SETTAR AS THREADS DELE, COM EXCECAO DO OVERLAY
     POR ENQUANTO '''
     
-    #thread.start_new_thread(overlay,(JOIN_sock,))
+    thread.start_new_thread(overlay,(JOIN_sock,))
     thread.start_new_thread(userTrade,())
     thread.start_new_thread(listenMessage,())
      
